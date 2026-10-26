@@ -1,0 +1,27 @@
+# Dependencies and generated builds
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Test output
+test-results/
+playwright-report/
+playwright/.cache/
+coverage/
+
+# Local configuration and credentials
+*.local
+.env
+.env.*
+!.env.example
+.aws/
+
+# Logs and operating-system files
+*.log
+.DS_Store
+Thumbs.db
+
+# Local editor files
+.idea/
+*.swp
+*.swo
