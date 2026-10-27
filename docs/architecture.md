@@ -35,5 +35,12 @@ Skjulte knapper i frontend er aldri tilgangskontroll.
 
 Disse områdene avklares i egne spesifikasjoner før implementering.
 
-Visuell idé til senere vurdering: [Easy Work som en stjernehimmel](ideas/easy-work-stjernehimmel.md).
+Ideer til senere vurdering: [Easy Work som en stjernehimmel](ideas/easy-work-stjernehimmel.md),
+med aktivitetsvisning, innholdsmal og lånte stjerner som følger eierens oppdateringer.
 Dette er et idénotat, ikke et nytt implementeringskrav.
+
+Foreslått modell for lånte stjerner (ikke besluttet eller implementert): Skill
+mellom innholdet som eies og oppdateres av forfatteren, og hver brukers referanse
+til det i kartet. Plassering, kartkoblinger og personlig progresjon holdes adskilt
+fra det delte innholdet. Sletting av originalinnhold må avklares separat fra
+fjerning av en stjerne fra eget kart.

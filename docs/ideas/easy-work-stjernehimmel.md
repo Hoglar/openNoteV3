@@ -63,6 +63,41 @@ i kartet alene dokumenterer ikke at nabotemaet faktisk er repetert. Før vi lage
 algoritmen, bør vi vurdere hvordan faktisk bruk av relaterte ferdigheter kan
 skilles fra bare det å ha en kobling.
 
+## Idé — en felles mal for stjerneinnhold
+
+Når en stjerne åpnes, kan innholdet ha to deler:
+
+- **Teori:** En enkel forklaring som hjelper brukeren å repetere temaet.
+- **Oppgaver:** Én oppgave om gangen, med mulighet til å bla gjennom oppgavene.
+  Brukeren markerer en oppgave som gjort og får deretter en ny fra samlingen.
+  Markeringen er egenrapportert fullføring; automatisk retting er ikke bestemt.
+
+Teori og oppgaver kan lages utenfor appen, gjerne med AI-hjelp, etter en felles
+mal og deretter importeres. Appen står for visning og navigasjon. Det innebærer
+ikke AI-generering av neste oppgave inne i appen.
+
+Malen skal støtte eksisterende idé om Markdown og matematikkformler, og skille
+teori fra de enkelte oppgavene. Nøyaktig filformat og importregler avklares senere.
+
+## Idé — låne stjerner med løpende oppdateringer
+
+- En bruker kan legge en annen brukers stjerne til i sitt eget kart.
+- Den opprinnelige eieren beholder eierskapet og redigerer teori og oppgaver.
+- Den lånte stjernen viser samme innhold og følger eierens oppdateringer.
+  Den er en referanse til originalen, ikke en uavhengig kopi.
+- Brukeren kan slutte å følge stjernen ved å fjerne den fra sitt eget kart,
+  for eksempel hvis innholdet utvikler seg i en uønsket retning.
+- Egne stjerner skal også kunne fjernes fra eget kart.
+
+Foreslått modell: Skill mellom delt stjerneinnhold og brukerens kartoppføring.
+Kartoppføringen refererer til innholdet og har egen permanent plassering og egne
+koblinger. Aktivitet, oppgaveprogresjon og lysstyrke tilhører den enkelte brukeren,
+slik at andres arbeid ikke teller som brukerens egen repetisjon.
+
+Å fjerne en stjerne fra eget kart bør ikke slette originalinnholdet eller fjerne
+den fra andres kart. Dette skillet, og eventuell sletting eller arkivering av
+selve originalen, må avklares før implementering.
+
 ## Avklaringer før implementering
 
 - Hvordan man åpner temasider fra stjernene.
@@ -75,6 +110,13 @@ skilles fra bare det å ha en kobling.
 - Hva som bestemmer størrelse, og om repetisjonsresultat skal påvirke lysstyrken.
 - Hvordan repetisjonshistorikk påvirker dimming, og hvordan indirekte aktivitet
   på nabotemaer skal vektes uten å erstatte direkte repetisjon.
+- Importformat for teori, oppgaver og eventuell fasit, og hvordan oppgaver får
+  stabile identiteter når eieren oppdaterer innholdet.
+- Rekkefølge på oppgaver, gjentatt øving og hva som skjer når alle er gjennomført.
+- Hvordan fullføring påvirker aktivitetsloggen og lysstyrken.
+- Hvordan innholdsendringer påvirker tidligere fullføringer og en pågående økt.
+- Om fjerning fra kartet bevarer historikk og plassering ved senere gjeninnlegging.
+- Hva som skjer med lånte stjerner hvis eieren sletter eller arkiverer originalen.
 
 Dette notatet endrer ikke omfanget i Spec 001. Når vi bestemmer oss for å bygge
 kartet, avklarer vi oppførselen og lager en egen spec med akseptansekriterier.
