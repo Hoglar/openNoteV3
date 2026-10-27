@@ -31,6 +31,7 @@ På Linux kan Chromium også trenge systembiblioteker. Installer dem ved behov m
 
 ## Spesifikasjon og struktur
 
+- [Arbeidsavtale for AI-agenter](AGENTS.md)
 - [Spec 001: applikasjonsramme](docs/specs/001-app-shell.md)
 - [Arkitektur og videre produktretning](docs/architecture.md)
 - `src/app`: ruter og fast layout.

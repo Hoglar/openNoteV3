@@ -34,3 +34,6 @@ Skjulte knapper i frontend er aldri tilgangskontroll.
   innhold og egne kart. Innlogging kreves for å opprette innhold og kommentere.
 
 Disse områdene avklares i egne spesifikasjoner før implementering.
+
+Visuell idé til senere vurdering: [Easy Work som en stjernehimmel](ideas/easy-work-stjernehimmel.md).
+Dette er et idénotat, ikke et nytt implementeringskrav.

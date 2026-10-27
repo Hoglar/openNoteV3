@@ -18,9 +18,11 @@ før funksjonene og backend bygges.
 - Når musepekeren beveges over ACTION, lysner teksten lokalt rundt pekeren med
   en svak cyan glød. Effekten forsvinner når pekeren forlater teksten. På
   berøringsskjermer vises teksten med streken, uten pekereffekten.
-- Menyen viser **Notater** og **Easy Work** med ikon og tekst. Valgt app markeres.
-- Under 640 px vises bare ikoner. Kontrollene har tilgjengelige navn og synlig
-  forklaring ved tastaturfokus eller peker.
+- Menyen er 56 px bred og viser bare ikoner på både desktop og mobil. Valgt app
+  markeres. Dette gjelder også startsiden og inn-/utlogging.
+- Kontrollene har tilgjengelige navn. Ved musepeker eller tastaturfokus vises
+  navnet i en liten etikett til høyre for ikonet, over arbeidsområdet. Etiketten
+  forsvinner når peker/fokus flyttes bort. Menyen utvides ikke og innholdet flyttes ikke.
 - **Logg inn** ligger nederst når brukeren er utlogget. **Logg ut** vises på samme
   plass når brukeren er innlogget.
 - Appbytte oppdaterer URL og arbeidsområde uten full sideinnlasting. Menyen blir
@@ -57,7 +59,8 @@ en separat applikasjon. Prototypen trenger ingen backend eller database.
 2. Appvalg viser riktig plassholderside, URL og aktiv markering uten full sideinnlasting.
 3. Direkte URL-er, oppfriskning og frem/tilbake viser riktig side.
 4. Simulert innlogging og utlogging følger reglene over; oppfriskning gjenoppretter utlogget tilstand.
-5. Ved 360 px bredde vises ikonmenyen uten horisontal rulling. Fra 640 px vises ikon og tekst.
+5. Ikonmenyen er 56 px bred på desktop og mobil, uten horisontal rulling ved
+   360 px. Navn vises ved peker/fokus uten å flytte arbeidsområdet.
 6. Navigasjonen kan brukes med tastatur og har synlig fokus. Tekst og kontroller har lesbar kontrast.
 7. Ukjente URL-er viser feilsiden innenfor den samme rammen.
 8. Typekontroll og produksjonsbygg passerer. Navigasjon og simulert innlogging
@@ -70,8 +73,8 @@ kunnskapskart bygges i denne leveransen. Det endelige produktet får offentlig
 lesetilgang og personlig eierskap; prototypen implementerer ikke tilgangskontroll.
 
 Utgangspunktet er nesten svart bakgrunn, mørkegrå paneler, lys tekst, dempet cyan,
-systemfont og 200 px venstremeny på desktop / 56 px på mobil. Overgangen er ved
-640 px. Disse verdiene kan justeres etter visuell evaluering.
+systemfont og 56 px venstremeny på både desktop og mobil. Innholdets avstander
+tilpasses under 640 px. Disse verdiene kan justeres etter visuell evaluering.
 
 Vi jobber spec-anchored: avklar ønsket oppførsel, oppdater specen, implementer,
 kontroller og evaluer. Avtalte endringer i oppførsel skal følges av endringer i

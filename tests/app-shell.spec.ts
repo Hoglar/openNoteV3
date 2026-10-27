@@ -66,13 +66,24 @@ test('responsive panels, centered ACTION, and keyboard navigation', async ({ pag
   const heading = await page.getByRole('heading', { name: 'ACTION' }).boundingBox();
   expect(panel).not.toBeNull();
   expect(heading).not.toBeNull();
-  expect(panel!.x).toBe(mobile ? 56 : 200);
+  expect(panel!.x).toBe(56);
   expect(Math.abs(heading!.x + heading!.width / 2 - (panel!.x + panel!.width / 2))).toBeLessThan(2);
   expect(Math.abs(heading!.y + heading!.height / 2 - (panel!.y + panel!.height / 2))).toBeLessThan(2);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  if (mobile) await expect(page.locator('.nav-label').first()).toBeHidden();
-  else await expect(page.locator('.nav-label').first()).toBeVisible();
+  await expect(page.locator('.nav-label').first()).toBeHidden();
   await page.screenshot({ path: testInfo.outputPath('startside.png') });
+
+  if (!mobile) {
+    for (const name of ['openNote – startside', 'Notater', 'Easy Work', 'Logg inn']) {
+      const item = page.getByRole('link', { name, exact: true });
+      await expect(item.locator('.nav-tooltip')).toBeHidden();
+      await item.hover();
+      await expect(item.locator('.nav-tooltip')).toBeVisible();
+      expect(await page.getByRole('main').boundingBox()).toEqual(panel);
+      await page.mouse.move(600, 300);
+      await expect(item.locator('.nav-tooltip')).toBeHidden();
+    }
+  }
 
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Hopp til innhold' })).toBeFocused();
@@ -82,7 +93,7 @@ test('responsive panels, centered ACTION, and keyboard navigation', async ({ pag
   const notes = page.getByRole('link', { name: 'Notater', exact: true });
   await expect(notes).toBeFocused();
   expect(await notes.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
-  if (mobile) await expect(notes.locator('.nav-tooltip')).toBeVisible();
+  await expect(notes.locator('.nav-tooltip')).toBeVisible();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL('/notes');
   // Remove hover/focus tooltips from the visual review of the content page.
