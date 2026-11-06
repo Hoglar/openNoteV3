@@ -33,7 +33,11 @@ På Linux kan Chromium også trenge systembiblioteker. Installer dem ved behov m
 
 - [Arbeidsavtale for AI-agenter](AGENTS.md)
 - [Spec 001: applikasjonsramme](docs/specs/001-app-shell.md)
+- [Spec 002: Notater (under avklaring)](docs/specs/002-notes.md)
 - [Arkitektur og videre produktretning](docs/architecture.md)
+- [ADR 001: innlogging og dataminimering (vedtatt)](docs/adr/001-innlogging-og-dataminimering.md)
+- [ADR 002: eierskap og sletting av stjerner (vedtatt)](docs/adr/002-eierskap-og-sletting-av-stjerner.md)
+- [ADR 003: backend, database og driftsretning (valgt, ikke implementert)](docs/adr/003-backend-database-og-drift.md)
 - `src/app`: ruter og fast layout.
 - `src/features`: separate funksjonsområder for notater, Easy Work og demo-innlogging.
 - `src/shared`: felles komponenter.

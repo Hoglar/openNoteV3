@@ -24,6 +24,9 @@ som brukeren legger til temaer.
 Eksempel: Fourier-rekker er én stjerne med en forbindelse til integrasjon.
 Integrasjon kan igjen være koblet til derivasjon.
 
+Mulig første innholdstema: En Markdown-stjerne med enkel teori og øvelser i
+formatering, slik at brukerne kan øve på språket de skriver notater i.
+
 Forslag til videre avklaring: Tilfeldigheten ved plassering av nye stjerner kan
 kombineres med regler som hindrer overlapp og gjør forbindelser lette å følge.
 Algoritmen er ikke valgt; permanent plassering er avklart.
@@ -94,9 +97,24 @@ Kartoppføringen refererer til innholdet og har egen permanent plassering og egn
 koblinger. Aktivitet, oppgaveprogresjon og lysstyrke tilhører den enkelte brukeren,
 slik at andres arbeid ikke teller som brukerens egen repetisjon.
 
-Å fjerne en stjerne fra eget kart bør ikke slette originalinnholdet eller fjerne
-den fra andres kart. Dette skillet, og eventuell sletting eller arkivering av
-selve originalen, må avklares før implementering.
+Slettingsregelen er vedtatt i
+[ADR 002 — Eierskap og sletting av stjerner](../adr/002-eierskap-og-sletting-av-stjerner.md):
+Sletting av originalen fjerner alle lånte forekomster. Fjerning fra eget kart
+berører bare ens eget kart. Selvstendige nabostjerner består, mens forbindelsen
+til den slettede stjernen fjernes. Dette gjelder også skillet mellom å fjerne
+en egen stjerne fra kartet og å slette originalen.
+Håndtering av tilknyttede notater, øvingshistorikk og kontosletting er fortsatt åpen.
+
+## Kobling mellom notater og stjerner
+
+Avklart funksjonsønske: Notater skal kunne knyttes til stjerner, slik at
+refleksjoner og læringslogg henger sammen med temaene i Easy Work. Dette er også
+ført i [Spec 002 — Notater](../specs/002-notes.md).
+
+Forslag til visning: Åpne relevante notater fra en stjerne, og åpne stjernen fra
+et tilknyttet notat. Et notat om Fourier-rekker og integrasjon kan potensielt
+knyttes til begge stjernene; støtte for flere koblinger er ikke avklart ennå.
+Koblingen erstatter ikke stjernens teoridel eller endrer hvem som eier notatet.
 
 ## Avklaringer før implementering
 
@@ -116,7 +134,9 @@ selve originalen, må avklares før implementering.
 - Hvordan fullføring påvirker aktivitetsloggen og lysstyrken.
 - Hvordan innholdsendringer påvirker tidligere fullføringer og en pågående økt.
 - Om fjerning fra kartet bevarer historikk og plassering ved senere gjeninnlegging.
-- Hva som skjer med lånte stjerner hvis eieren sletter eller arkiverer originalen.
+- Hvordan sletting etter ADR 002 påvirker historikk og vises til berørte brukere.
+- Om notatkoblinger gjelder delt stjerneinnhold eller en personlig kartoppføring,
+  hvilke notater som vises fra en stjerne, og hvordan fjerning påvirker koblingene.
 
 Dette notatet endrer ikke omfanget i Spec 001. Når vi bestemmer oss for å bygge
 kartet, avklarer vi oppførselen og lager en egen spec med akseptansekriterier.
