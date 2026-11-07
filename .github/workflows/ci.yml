@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+    steps:
+      - name: Hent kode
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Sett opp Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Installer låste pakker
+        run: npm ci
+      - name: Kontroller TypeScript og bygg frontend
+        run: npm run build
+      - name: Installer Chromium og systembiblioteker
+        run: npx playwright install --with-deps chromium
+      - name: Test i nettleser på desktop og mobil
+        run: npm run test:e2e
+      - name: Behold rapport og spor ved feil
+        if: ${{ failure() && !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: playwright-failure-${{ github.run_attempt }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHON_DOTENV_DISABLED: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      DJANGO_ENV: local
+      DJANGO_DEBUG: 'false'
+      # Public test values, used only in this disposable CI environment.
+      DJANGO_SECRET_KEY: opennote-ci-only-key-not-for-real-users-or-any-deployment-00000000
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      GOOGLE_CLIENT_ID: ''
+      GOOGLE_CLIENT_SECRET: ''
+      GITHUB_CLIENT_ID: ''
+      GITHUB_CLIENT_SECRET: ''
+      POSTGRES_DB: opennote_ci
+      POSTGRES_USER: opennote_ci
+      POSTGRES_PASSWORD: opennote-ci-only-password
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: '5432'
+    services:
+      postgres:
+        image: postgres:17.11-bookworm
+        env:
+          POSTGRES_DB: opennote_ci
+          POSTGRES_USER: opennote_ci
+          POSTGRES_PASSWORD: opennote-ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U opennote_ci -d opennote_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Hent kode
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Sett opp Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Installer låste pakker
+        run: |
+          python -m pip install -r backend/requirements.txt
+          python -m pip check
+      - name: Kontroller Django og manglende migrasjoner
+        run: |
+          python backend/manage.py check
+          python backend/manage.py makemigrations --check --dry-run
+      - name: Kjør migrasjoner på tom database
+        run: python backend/manage.py migrate --noinput
+      - name: Test alle backend-moduler
+        working-directory: backend
+        run: python manage.py test --noinput

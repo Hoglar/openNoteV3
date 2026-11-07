@@ -1,7 +1,8 @@
 # ADR 003 — Backend, database og driftsretning
 
 Dato: 2026-11-06
-Status: Valgt på brukerens delegerte mandat. Planlagt, ikke implementert.
+Status: Valgt på brukerens delegerte mandat. Lokalt backend-grunnlag med
+kontoer og PostgreSQL er implementert. Funksjonsmoduler og produksjonsdrift gjenstår.
 
 ## Kontekst
 
@@ -121,7 +122,7 @@ ikke vårt ansvar for appens sikkerhet.
 
 ## Neste steg
 
-Skriv innloggingsspec og konkretiser datamodell og API for første Notater-leveranse.
-Prototyp innloggingsflyten og verifiser dataminimeringen før ekte brukerdata tas
-i bruk. Easy Work får egen funksjonsspec før implementering. Denne ADR-en
-bestiller ikke implementering av hele backend eller offentlig publisering.
+Innloggingsspec og lokal implementasjon finnes i [Spec 003](../specs/003-auth.md).
+Neste steg er live OAuth med egne leverandørnøkler og datamodell/API for første
+Notater-leveranse. Easy Work får egen funksjonsspec før implementering.
+Offentlig publisering inngår ikke i den lokale leveransen.

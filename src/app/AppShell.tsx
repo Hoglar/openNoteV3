@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
-import { useDemoSession } from '../features/auth/DemoSession';
+import { useSession } from '../features/auth/Session';
 import { Icon } from '../shared/Icon';
 
 const titles: Record<string, string> = {
@@ -8,15 +8,18 @@ const titles: Record<string, string> = {
 };
 
 export function AppShell() {
-  const { isSignedIn, signOut } = useDemoSession();
+  const { user, signOut } = useSession();
+  const [signingOut, setSigningOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
   const { pathname } = useLocation();
+  const title = titles[pathname] ?? (pathname.startsWith('/notes/') ? 'Notater' : pathname.startsWith('/easy-work/') ? 'Easy Work' : 'Siden finnes ikke');
   const navigate = useNavigate();
   const workspace = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    document.title = `${titles[pathname] ?? 'Siden finnes ikke'} · openNote`;
+    document.title = `${title} · openNote`;
     workspace.current?.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname, title]);
 
   return (
     <div className="app-shell">
@@ -41,10 +44,13 @@ export function AppShell() {
         </nav>
         <div className="session-nav">
           <div className="sidebar-divider" />
-          {isSignedIn ? (
-            <button className="nav-item session-control" aria-label="Logg ut" onClick={() => {
-              signOut();
-              navigate('/');
+          {user ? (
+            <button className="nav-item session-control" aria-label="Logg ut" disabled={signingOut} onClick={async () => {
+              setSigningOut(true);
+              setLogoutError(null);
+              try { await signOut(); navigate('/'); }
+              catch (cause) { setLogoutError(cause instanceof Error ? cause.message : 'Kunne ikke logge ut.'); }
+              finally { setSigningOut(false); }
             }}>
               <Icon name="logout" /><span className="nav-label">Logg ut</span>
               <span className="nav-tooltip" aria-hidden="true">Logg ut</span>
@@ -57,10 +63,11 @@ export function AppShell() {
           )}
         </div>
       </aside>
+      {logoutError && <div className="session-error" role="alert">{logoutError}</div>}
       <main id="workspace" className="workspace" ref={workspace} tabIndex={-1}>
         <Outlet />
       </main>
-      <span className="sr-only" role="status">{titles[pathname] ?? 'Siden finnes ikke'}</span>
+      <span className="sr-only" role="status">{title}</span>
     </div>
   );
 }

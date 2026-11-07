@@ -1,14 +1,17 @@
 # ADR 001 — Innlogging og dataminimering
 
 Dato: 2026-11-06
-Status: Vedtatt 2026-11-06. Ikke implementert. Åpne detaljer står under neste avklaringer.
+Status: Vedtatt 2026-11-06. Lokalt implementert etter Spec 003.
+Ekte Google-innlogging lokalt er bekreftet av brukeren. GitHub, produksjonsinnlogging
+og personvernavklaringer før offentlig drift gjenstår.
 
 ## Kontekst
 
 openNote skal ha offentlig lesetilgang og kreve innlogging for å opprette og
 endre eget innhold. Vi ønsker enkel bruk, begrenset driftsarbeid og minst mulig
 innsamling og lagring av personopplysninger. Google og GitHub er valgte
-innloggingsleverandører. Foreløpig finnes bare simulert innlogging.
+innloggingsleverandører. Den tidligere demo-innloggingen er erstattet med
+serverøkter. Google er konfigurert og prøvd lokalt; GitHub krever fortsatt nøkler.
 
 ## Beslutning
 
@@ -70,7 +73,8 @@ leverandørs støttede flyt. Hemmeligheter og tokens skal aldri til frontendlogg
   kontotilgang kan hindre innlogging. Leverandøren får informasjon om innloggingen.
 - To leverandører kan gi to lokale kontoer. Ikke slå sammen brukere automatisk
   etter lik e-post eller navn. Eventuell kontokobling må kreve verifisert kontroll
-  over begge identitetene; kobling og gjenoppretting er åpne produktvalg.
+  over begge identitetene. Spec 003 utsetter kobling og gjenoppretting uten
+  leverandøren; første versjon har separate kontoer per leverandøridentitet.
 - E-post og passord gir uavhengighet fra Google/GitHub, men mer sikkerhets- og
   driftsarbeid. E-postlenker krever e-postlagring og en e-posttjeneste.
 - En administrert autentiseringstjeneste kan redusere implementeringsarbeidet,
@@ -146,7 +150,7 @@ de faktiske leverandørene, databehandlingen og målgruppen.
 ## Neste avklaringer
 
 Innloggingsmetodene og prinsippene for dataminimering er vedtatt av brukeren.
-Django og django-allauth er valgt i ADR 003. Avklar hosting og håndtering av
-kontoer, og skriv en
-egen innloggingsspec med akseptansekriterier. ADR-en forklarer retningen og
-avveiningene; den erstatter ikke en ferdig implementeringsspec.
+Django og django-allauth er valgt i ADR 003. Oppførsel og lokale kontroller
+er beskrevet i [Spec 003](../specs/003-auth.md). GitHub-innlogging,
+produksjonsdrift og håndtering av kontosletting og personvern må avklares
+før offentlig åpning.

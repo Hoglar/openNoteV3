@@ -1,12 +1,13 @@
 # Spec 001 — Applikasjonsramme og startside
 
-Status: Implementert prototype, klar for visuell evaluering.
+Status: Implementert applikasjonsramme. Innlogging følger nå Spec 003;
+Notater og Easy Work følger Spec 002 og 004.
 
 ## Formål
 
 En klikkbar prototype av en læringsportal med **Notater** og **Easy Work**.
-Første leveranse skal gjøre det mulig å vurdere utseende, navigasjon og plassbruk
-før funksjonene og backend bygges.
+Rammen gjør det mulig å vurdere utseende, navigasjon og plassbruk mens
+funksjonene bygges gradvis.
 
 ## Utseende og oppførsel
 
@@ -31,46 +32,45 @@ før funksjonene og backend bygges.
 
 ## Sider og tekniske rammer
 
-React, TypeScript og Vite, med React Router for navigasjon. Backend blir senere
-en separat applikasjon. Prototypen trenger ingen backend eller database.
+React, TypeScript og Vite, med React Router for navigasjon. Separat Django-backend
+og PostgreSQL brukes nå for kontoer og økter, beskrevet i [Spec 003](003-auth.md).
 
 | URL | Innhold |
 | --- | --- |
 | `/` | Bare ACTION i arbeidsområdet. |
-| `/notes` | Overskriften Notater og kort plassholdertekst om notater, temafiltrering og kommentarer. |
-| `/easy-work` | Overskriften Easy Work og kort plassholdertekst om kunnskapskart, temasider og øvelser. |
-| `/login` | Tydelig merket demonstrasjon med «Simuler innlogging». Ingen passord samles inn. |
+| `/notes` | Notatoversikt, søk og temafiltrering etter Spec 002. |
+| `/easy-work` | Stjernekart og offentlig stjernebibliotek etter Spec 004. |
+| `/login` | Google/GitHub-innlogging, navnevalg og feiltilstander etter Spec 003. |
 | Ukjent URL | «Siden finnes ikke» i arbeidsområdet med lenke til startsiden. |
 
-- Simulert innlogging sender brukeren til `/` og bytter menyknappen til Logg ut.
-- Utlogging nullstiller demonstrasjonstilstanden og sender brukeren til `/`.
-- Innlogging holdes kun i minnet og nullstilles ved full sideinnlasting.
-- Alle sider kan åpnes uten innlogging. Demonstrasjonen gir ingen reelle rettigheter.
+- Serverøkten avgjør om menyen viser Logg inn eller Logg ut.
+- Vellykket utlogging avslutter serverøkten og sender brukeren til `/`.
+  Ved feil beholdes menytilstanden og brukeren får en feilmelding.
+- Gyldig innlogging bevares ved full sideinnlasting. Alle sider kan fortsatt
+  åpnes uten innlogging. Endringer i kontoer kontrolleres av backend.
 - Direkte lenker og nettleserens frem- og tilbakeknapper fungerer. Hosting må sende
   frontendruter til `index.html`.
-- Ingen backend-API-er eller datamodeller innføres.
-- Felles layout, sideinnhold og simulert innlogging holdes adskilt. Notater og
+- Felles layout, sideinnhold og innlogging holdes adskilt. Notater og
   Easy Work har egne funksjonsmapper.
 
 ## Akseptansekriterier
 
 1. `/` viser venstremenyen og ACTION sentrert i høyrepanelet, med en diskret
    understrek og lokal lysning som følger musepekeren over teksten.
-2. Appvalg viser riktig plassholderside, URL og aktiv markering uten full sideinnlasting.
+2. Appvalg viser riktig appside, URL og aktiv markering uten full sideinnlasting.
 3. Direkte URL-er, oppfriskning og frem/tilbake viser riktig side.
-4. Simulert innlogging og utlogging følger reglene over; oppfriskning gjenoppretter utlogget tilstand.
+4. Inn-/utlogging følger Spec 003; oppfriskning gjenoppretter tilstanden fra serveren.
 5. Ikonmenyen er 56 px bred på desktop og mobil, uten horisontal rulling ved
    360 px. Navn vises ved peker/fokus uten å flytte arbeidsområdet.
 6. Navigasjonen kan brukes med tastatur og har synlig fokus. Tekst og kontroller har lesbar kontrast.
 7. Ukjente URL-er viser feilsiden innenfor den samme rammen.
-8. Typekontroll og produksjonsbygg passerer. Navigasjon og simulert innlogging
+8. Typekontroll og produksjonsbygg passerer. Navigasjon og innloggingsgrensesnitt
    kontrolleres med nettlesertester; utseendet vurderes på mobil og desktop.
 
 ## Avgrensning og designvalg
 
-Ingen ekte kontoer, notatredigering, kommentarer, filtrering, opplasting eller
-kunnskapskart bygges i denne leveransen. Det endelige produktet får offentlig
-lesetilgang og personlig eierskap; prototypen implementerer ikke tilgangskontroll.
+Notatredigering, kommentarer, filtrering, import og kunnskapskart beskrives
+i egne spesifikasjoner og vises innenfor denne rammen. Kontoer og serverøkter er innført separat i Spec 003.
 
 Utgangspunktet er nesten svart bakgrunn, mørkegrå paneler, lys tekst, dempet cyan,
 systemfont og 56 px venstremeny på både desktop og mobil. Innholdets avstander

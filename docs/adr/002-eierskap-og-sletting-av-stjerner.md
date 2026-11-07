@@ -1,7 +1,7 @@
 # ADR 002 — Eierskap og sletting av stjerner
 
 Dato: 2026-11-06
-Status: Vedtatt som første løsning. Ikke implementert.
+Status: Vedtatt og implementert i første lokale versjon (Spec 004).
 
 ## Kontekst
 
@@ -35,13 +35,11 @@ sletter den. Brukergrensesnittet må gjøre omfanget av de to handlingene tydeli
 Automatisk kopiering eller arkivering av slettet originalinnhold er ikke valgt
 som første løsning. Det ville kreve egne regler for eierskap og videre bruk.
 
-## Gjenstående avklaringer
+## Konkretisering i Spec 004
 
-- Håndtering av øvingshistorikk og progresjon knyttet til en fjernet stjerne.
-- Håndtering av tilknyttede notater og lenker fra disse; denne ADR-en gir ikke
-  grunnlag for automatisk å slette notatinnhold.
-- Eventuell gjeninnlegging etter «Fjern fra mitt kart» og bevaring av plassering.
-- Kontosletting, sikkerhetskopier og lagringsfrister avklares separat. Denne
-  beslutningen fastsetter ikke at kontosletting automatisk sletter alle stjerner.
+Fjerning fra eget kart bevarer plassering og personlig øving, men fjerner
+forbindelsene. Gjeninnlegging bruker samme plassering. Sletting av originalen
+sletter også tilknyttet øving. Notater beholdes, men koblingen til stjernen fjernes.
 
-Beslutningen tas inn i Easy Work-specen og relevante tester før implementering.
+Kontosletting, sikkerhetskopier og lagringsfrister avklares separat. Denne
+beslutningen fastsetter ikke et produktløfte om håndtering av kontosletting.

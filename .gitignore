@@ -8,8 +8,13 @@ test-results/
 playwright-report/
 playwright/.cache/
 coverage/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
 
 # Local configuration and credentials
+.local/
 *.local
 .env
 .env.*

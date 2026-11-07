@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "title": "Integrasjon – små repetisjoner",
+  "theory": "## Den viktigste ideen\n\nIntegrasjon finner en antiderivert. For $n \\ne -1$ har vi\n\n$$\n\\int x^n\\,dx = \\frac{x^{n+1}}{n+1} + C.\n$$\n\nHusk integrasjonskonstanten $C$. **Tips:** Deriver svaret for å kontrollere det.",
+  "exercises": [
+    {
+      "id": "potens-01",
+      "prompt": "Finn integralet:\n\n$$\n\\int 2x\\,dx\n$$",
+      "answer": "$$\nx^2 + C\n$$\n\nDerivasjon av $x^2$ gir $2x$."
+    },
+    {
+      "id": "potens-02",
+      "prompt": "Finn integralet:\n\n$$\n\\int 3x^2\\,dx\n$$",
+      "answer": "$$\nx^3 + C\n$$"
+    }
+  ]
+}

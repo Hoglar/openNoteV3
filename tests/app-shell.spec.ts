@@ -1,5 +1,20 @@
 import { test, expect } from '@playwright/test';
 
+const anonymousSession = {
+  user: null, csrfToken: 'test-csrf',
+  providers: [{ id: 'google', name: 'Google', enabled: false }, { id: 'github', name: 'GitHub', enabled: false }],
+};
+
+// UI contract tests; PostgreSQL and OAuth callback handling are tested in backend/.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/auth/session/', route => route.fulfill({ json: anonymousSession }));
+  await page.route(/\/api\/(notes|stars|map|map-owners)\/(\?.*)?$/, route => route.fulfill({
+    json: new URL(route.request().url()).pathname === '/api/map/'
+      ? { owner: null, entries: [], connections: [] }
+      : { count: 0, next: null, previous: null, results: [] },
+  }));
+});
+
 test('start page, client navigation and browser history', async ({ page }) => {
   await page.goto('/');
   const main = page.getByRole('main');
@@ -30,7 +45,7 @@ test('public deep links, reload and unknown URL', async ({ page }) => {
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Logg inn', exact: true })).toBeVisible();
+    await expect(page.getByRole('complementary').getByRole('link', { name: 'Logg inn', exact: true })).toBeVisible();
   }
   await page.goto('/does-not-exist');
   await expect(page.getByRole('heading', { name: 'Siden finnes ikke' })).toBeVisible();
@@ -39,24 +54,85 @@ test('public deep links, reload and unknown URL', async ({ page }) => {
   await expect(page).toHaveURL('/');
 });
 
-test('demo session survives app changes, resets on reload, and logs out', async ({ page }) => {
+test('server session survives reload; failed logout preserves state', async ({ page }) => {
+  let signedIn = true;
+  let failLogout = true;
+  await page.route('**/api/auth/session/', route => route.fulfill({ json: {
+    ...anonymousSession,
+    user: signedIn ? { id: 'test-id', displayName: 'Månestjerne', needsDisplayName: false } : null,
+  } }));
+  await page.route('**/api/auth/logout/', async route => {
+    expect(route.request().method()).toBe('POST');
+    expect(route.request().headers()['x-csrftoken']).toBe('test-csrf');
+    if (failLogout) await route.fulfill({ status: 503, json: {} });
+    else { signedIn = false; await route.fulfill({ json: { user: null, csrfToken: 'new-csrf' } }); }
+  });
   await page.goto('/');
-  await page.getByRole('link', { name: 'Logg inn', exact: true }).click();
-  await expect(page).toHaveURL('/login');
-  await expect(page.locator('input[type="password"]')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Simuler innlogging' }).click();
-  await expect(page).toHaveURL('/');
   await expect(page.getByRole('button', { name: 'Logg ut' })).toBeVisible();
   await page.getByRole('link', { name: 'Easy Work', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Logg ut' })).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('link', { name: 'Logg inn', exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'Logg inn', exact: true }).click();
-  await page.getByRole('button', { name: 'Simuler innlogging' }).click();
-  await page.getByRole('link', { name: 'Notater', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Logg ut' })).toBeVisible();
+  await page.getByRole('button', { name: 'Logg ut' }).click();
+  await expect(page.getByRole('alert')).toContainText('Prøv igjen');
+  await expect(page.getByRole('button', { name: 'Logg ut' })).toBeVisible();
+  failLogout = false;
   await page.getByRole('button', { name: 'Logg ut' }).click();
   await expect(page).toHaveURL('/');
   await expect(page.getByRole('link', { name: 'Logg inn', exact: true })).toBeVisible();
+});
+
+test('unconfigured providers and network retry are clear', async ({ page }) => {
+  await page.goto('/login');
+  await expect(page.getByRole('button', { name: 'Fortsett med Google' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Fortsett med GitHub' })).toBeDisabled();
+  await expect(page.getByText('Google-innlogging er ikke satt opp ennå.')).toBeVisible();
+  await expect(page.locator('input[type="password"]')).toHaveCount(0);
+  await page.route('**/api/auth/session/', route => route.fulfill({ status: 503, json: {} }));
+  await page.reload();
+  await expect(page.getByRole('alert')).toContainText('Kunne ikke hente');
+  await page.route('**/api/auth/session/', route => route.fulfill({ json: anonymousSession }));
+  await page.getByRole('button', { name: 'Prøv igjen' }).click();
+  await expect(page.getByRole('button', { name: 'Fortsett med Google' })).toBeDisabled();
+});
+
+test('new user chooses a display name with validation feedback', async ({ page }) => {
+  await page.route('**/api/auth/session/', route => route.fulfill({ json: {
+    ...anonymousSession, user: { id: 'test-id', displayName: '', needsDisplayName: true },
+  } }));
+  let failSave = true;
+  await page.route('**/api/auth/profile/', async route => {
+    if (failSave) await route.fulfill({ status: 400, json: {} });
+    else {
+      expect(route.request().postDataJSON()).toEqual({ displayName: 'Månestjerne' });
+      expect(route.request().headers()['x-csrftoken']).toBe('test-csrf');
+      await route.fulfill({ json: { user: { id: 'test-id', displayName: 'Månestjerne', needsDisplayName: false } } });
+    }
+  });
+  await page.goto('/login');
+  await expect(page.getByRole('heading', { name: 'Velg visningsnavn' })).toBeVisible();
+  await page.getByLabel('Visningsnavn', { exact: true }).fill('Månestjerne');
+  await page.getByRole('button', { name: 'Lagre visningsnavn' }).click();
+  await expect(page.getByRole('alert')).toContainText('2–40 tegn');
+  failSave = false;
+  await page.getByRole('button', { name: 'Lagre visningsnavn' }).click();
+  await expect(page).toHaveURL('/');
+  await expect(page.getByRole('button', { name: 'Logg ut' })).toBeVisible();
+});
+
+test('provider login posts CSRF and a fixed callback', async ({ page }) => {
+  await page.route('**/api/auth/session/', route => route.fulfill({ json: {
+    ...anonymousSession, providers: [{ id: 'google', name: 'Google', enabled: true }],
+  } }));
+  await page.route('**/_allauth/browser/v1/auth/provider/redirect', async route => {
+    expect(route.request().method()).toBe('POST');
+    const form = new URLSearchParams(route.request().postData() ?? '');
+    expect(Object.fromEntries(form)).toEqual({ provider: 'google', process: 'login', callback_url: '/login', csrfmiddlewaretoken: 'test-csrf' });
+    await route.fulfill({ status: 302, headers: { location: '/login?error=provider' } });
+  });
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Fortsett med Google' }).click();
+  await expect(page.getByRole('alert')).toContainText('avbrutt eller mislyktes');
 });
 
 test('responsive panels, centered ACTION, and keyboard navigation', async ({ page }, testInfo) => {

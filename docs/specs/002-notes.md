@@ -1,7 +1,6 @@
 # Spec 002 — Notater
 
-Status: Under avklaring. Markdown-editor er valgt; funksjonen er planlagt og
-ikke implementert. Dette dokumentet samler beslutninger før implementering.
+Status: Første funksjonelle, lokale versjon. Innlogging følger Spec 003.
 
 ## Formål
 
@@ -37,8 +36,8 @@ og finne innhold etter tema.
 - Temaetikettene fungerer uavhengig av stjerner. Kobling til en stjerne er
   valgfri, og det skal være mulig å skrive og organisere notater uten et kart.
 - Notater skal kunne kobles til stjerner i Easy Work. For eksempel kan et
-  refleksjonsnotat om Fourier-rekker knyttes til Fourier-stjernen. Detaljene og
-  hvilken leveranse som innfører koblingen, avklares sammen med Easy Work.
+  refleksjonsnotat om Fourier-rekker knyttes til Fourier-stjernen. Notatet kan kobles til inntil ti delte stjerner. Koblingen peker på
+  originalinnholdet, uavhengig av hvilke kart stjernen ligger i.
 
 ## Kommentarer
 
@@ -51,7 +50,7 @@ og finne innhold etter tema.
 - Innloggede brukere kan legge til kommentarer. Forfatteren kan redigere og
   slette sine egne kommentarer. Alle kan lese og kopiere kommentarene.
 
-## Foreløpige akseptansekriterier
+## Akseptansekriterier
 
 1. Markdown-tekst vises formatert i forhåndsvisningen, inkludert kode og matte.
 2. Brukeren kan endre teksten og se endringene i forhåndsvisningen.
@@ -75,21 +74,35 @@ og finne innhold etter tema.
 14. Brede formelblokker kan leses på mobil, med lokal horisontal rulling ved
     behov, uten at hele siden blir bredere enn skjermen.
 
-## Gjenstående avklaringer og avgrensning
+## Konkret oppførsel og avgrensning
 
-- Hvilke felt tekstsøket dekker, og om valg av flere etiketter krever treff på
-  alle eller minst én. Opprettelse og navngiving av etiketter avklares også.
-- Håndtering av ulagrede endringer når brukeren forlater editoren, og ved lagringsfeil.
-- Eventuell import av Markdown-filer. Bilder og vedlegg er utenfor første versjon.
-- Kobling til stjerner: om et notat kan knyttes til flere stjerner, hvordan man
-  navigerer mellom notat og stjerne, og hvilke tilknyttede notater stjernen viser.
-- Om koblingen peker til det delte stjerneinnholdet eller oppføringen i et
-  bestemt kart, og hva som skjer hvis stjernen fjernes eller originalen slettes.
-- Google og GitHub er vedtatt som innloggingsleverandører i
-  [ADR 001](../adr/001-innlogging-og-dataminimering.md), sammen med selvvalgt
-  visningsnavn og dataminimering. Backend er valgt i
-  [ADR 003](../adr/003-backend-database-og-drift.md). API-kontrakt og
-  innloggingsspec avklares før funksjonell implementering.
+- Søk dekker tittel og Markdown-tekst, uten forskjell på store/små bokstaver.
+  Flere valgte etiketter krever treff på alle. Søk og filtre ligger i URL-en.
+- Brukeren skriver etiketter separert med komma; mellomrom normaliseres,
+  navn lagres med små bokstaver og duplikater fjernes. Maks ti etiketter,
+  40 tegn per etikett. Tittel har maks 160 tegn, tekst 50 000 og kommentar 10 000.
+- Oversikter og kommentarer har paginering med 20 resultater per side.
+- Editor viser at lagring gjør innhold offentlig. Lagringsfeil bevarer teksten.
+  Ulagrede redigeringer varsles ved navigasjon og lukking av fanen så langt
+  nettleseren støtter dette. Ingen lokal automatisk utkastlagring.
+- Et notat kan lenke til flere offentlige stjerner, også uten at de er i eget kart.
+  Stjernens side lenker til filtrert notatoversikt. Fjerning fra et kart påvirker
+  ikke notatet; sletting av originalstjernen fjerner bare koblingen.
+- Sletting av et notat krever bekreftelse og sletter også kommentarene.
+- HTML og bilder gjengis ikke. Lenker valideres, og matematikk kjøres uten
+  tillit til HTML/eksterne ressurser. Brede kodeblokker, tabeller og formler ruller lokalt.
+- Kopiering viser kvittering eller feil dersom nettleseren nekter utklippstavlen.
+- Import av Markdown-fil, vedlegg, svartråder og private notater inngår ikke.
+  Markdown kan limes direkte inn i editoren.
 
-Spec 001 beskriver fortsatt den implementerte rammen med plassholdersider.
-Valget av editor innebærer ikke at hele Notater er ferdig spesifisert.
+[Spec 004](004-easy-work.md) beskriver stjerner og kart. Backend håndhever
+innlogging, valgt visningsnavn og eierskap; skjulte knapper er ikke tilgangskontroll.
+
+## Verifikasjon av lokal leveranse
+
+TypeScript og produksjonsbygg består. Samlet består 22 backend-tester mot
+PostgreSQL og 24 nettlesertester på mobil/desktop. Kartvisningen er kontrollert
+på nytt etter siste stiljustering. En ekstra nettleserkontroll med to isolerte
+brukere mot ekte Vite/Django/PostgreSQL verifiserte opprettelse, notatkobling,
+kommentar, lån, oppdatering, øving, kartfjerning og sletting av originalen.
+Testkontoer og testinnhold ble ryddet bort. Live Google/GitHub krever egne nøkler.
