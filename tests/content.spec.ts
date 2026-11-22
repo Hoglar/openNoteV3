@@ -118,9 +118,26 @@ test('unsaved navigation can be cancelled and harmful Markdown stays inert', asy
   await expect(page.locator('.editor-preview img, .editor-preview script, .editor-preview a[href^="javascript:"]')).toHaveCount(0);
   await expect(page.locator('.editor-preview .katex-display .katex')).toBeVisible();
   expect(await page.evaluate(() => Reflect.get(window, 'pwned'))).toBeUndefined();
-  page.once('dialog', dialog => dialog.dismiss()); await page.getByRole('link', { name: 'Easy Work', exact: true }).click();
+  const easyWork = page.getByRole('link', { name: 'Easy Work', exact: true });
+  // React opens this dialog in an effect, which may run after click() resolves.
+  // Finish handling each dialog before registering the next response.
+  await Promise.all([
+    page.waitForEvent('dialog').then(async dialog => {
+      expect(dialog.type()).toBe('confirm');
+      expect(dialog.message()).toBe('Du har ulagrede endringer. Vil du forkaste dem og forlate siden?');
+      await dialog.dismiss();
+    }),
+    easyWork.click(),
+  ]);
   await expect(page).toHaveURL('/notes/new'); await expect(page.getByLabel('Tittel', { exact: true })).toHaveValue('Trygg tekst');
-  page.once('dialog', dialog => dialog.accept()); await page.getByRole('link', { name: 'Easy Work', exact: true }).click();
+  await Promise.all([
+    page.waitForEvent('dialog').then(async dialog => {
+      expect(dialog.type()).toBe('confirm');
+      expect(dialog.message()).toBe('Du har ulagrede endringer. Vil du forkaste dem og forlate siden?');
+      await dialog.accept();
+    }),
+    easyWork.click(),
+  ]);
   await expect(page).toHaveURL('/easy-work');
 });
 
