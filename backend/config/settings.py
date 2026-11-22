@@ -68,6 +68,12 @@ SESSION_COOKIE_SECURE = not LOCAL
 CSRF_COOKIE_SECURE = not LOCAL
 CSRF_COOKIE_HTTPONLY = True  # The frontend receives a masked token via session API.
 SECURE_SSL_REDIRECT = not LOCAL
+# Only enable behind our private Caddy proxy, which overwrites this header.
+# Never publish the backend port when this setting is enabled.
+SECURE_PROXY_SSL_HEADER = (
+    ('HTTP_X_FORWARDED_PROTO', 'https')
+    if not LOCAL and os.environ.get('DJANGO_TRUST_PROXY') == 'true' else None
+)
 SECURE_HSTS_SECONDS = 31536000 if not LOCAL else 0
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
@@ -79,6 +85,10 @@ ACCOUNT_SIGNUP_FIELDS = ['email']  # Optional library field; no signup form is e
 ACCOUNT_LOGIN_METHODS = {'email'}  # Inactive: SOCIALACCOUNT_ONLY, no password routes.
 # allauth cross-checks password login against signup even in social-only mode.
 SILENCED_SYSTEM_CHECKS = ['account.W001']
+# HSTS applies only to this app's host. We have not committed unrelated
+# subdomains to HTTPS or submitted the domain to a browser preload list.
+if not LOCAL:
+    SILENCED_SYSTEM_CHECKS += ['security.W005', 'security.W021']
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
 ACCOUNT_USER_DISPLAY = 'accounts.models.user_display'

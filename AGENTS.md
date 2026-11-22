@@ -1,5 +1,21 @@
 # Arbeidsavtale for openNote
 
+## Overordnet arbeidsområde og fagmapper
+
+Prosjektroten er det overordnede arbeidsområdet for utvikling, arkitektur,
+produktvalg og koordinering. Behold helheten her; utvikling flyttes ikke til en fagmappe.
+
+- `business/` samler fagarbeid for økonomi, juss/personvern, markedsføring,
+  kvalitetssjekk, sikkerhet og drift. Se [oversikten](business/README.md).
+- Ved arbeid med et bestemt fagområde, les `business/AGENTS.md` og den aktuelle
+  mappens `AGENTS.md`, også når sesjonen startet i prosjektroten. Les bare
+  relevante fagmandater; vanlige utviklingsoppgaver krever ikke alle fagområdene.
+- Fagarbeid skal kunne bygge på relevant kode og dokumentasjon i hele prosjektet,
+  innenfor arbeidsmiljøets faktiske tillatelser. Fagmappen avgrenser fokus, ikke lesebehov.
+- Fagmappene er dokumentasjon og instrukser. De starter ikke egne agenter eller
+  gir nye tekniske tilganger. Ingen automatisk delegering innføres med denne strukturen.
+- Faglige forslag blir avtalte krav gjennom samme spec-anchored arbeidsflyt som øvrig arbeid.
+
 ## Spec-anchored utvikling
 
 Vi utvikler prosjektet i små steg. Spesifikasjonene er et levende holdepunkt

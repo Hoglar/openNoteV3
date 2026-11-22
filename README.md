@@ -118,17 +118,21 @@ Grønn status betyr at disse kontrollene består; appen blir ikke publisert.
 GitHubs branch-regler må konfigureres separat dersom grønn CI skal være et
 krav før fletting. Se [Spec 005](docs/specs/005-ci.md) for omfang og begrensninger.
 
-Workflowen må pushes sammen med appkoden, migrasjonene og testene den bruker.
-Første kjøring på GitHub gjenstår til dette er gjort.
+Brukeren har bekreftet at CI fungerer etter push til GitHub. Serveroppsettet
+har i tillegg en manuelt startet **Production check**; se driftsveiledningen under.
 
 ## Spesifikasjon og struktur
 
 - [Arbeidsavtale for AI-agenter](AGENTS.md)
+- [Fagmapper: økonomi, juss, markedsføring, review, sikkerhet og drift](business/README.md)
 - [Spec 001: applikasjonsramme](docs/specs/001-app-shell.md)
 - [Spec 002: Notater](docs/specs/002-notes.md)
 - [Spec 003: innlogging og lokal backend](docs/specs/003-auth.md)
 - [Spec 004: Easy Work](docs/specs/004-easy-work.md)
 - [Spec 005: kontinuerlig integrasjon](docs/specs/005-ci.md)
+- [Spec 006: forberedelse til serverdrift](docs/specs/006-production.md)
+- [Spec 007: fagmapper og overordnet utviklingsarbeid](docs/specs/007-workspaces.md)
+- [Utrulling, oppdatering og backup](docs/deployment.md)
 - [Arkitektur og videre produktretning](docs/architecture.md)
 - [ADR 001: innlogging og dataminimering (vedtatt)](docs/adr/001-innlogging-og-dataminimering.md)
 - [ADR 002: eierskap og sletting av stjerner (vedtatt)](docs/adr/002-eierskap-og-sletting-av-stjerner.md)
@@ -145,20 +149,18 @@ Første kjøring på GitHub gjenstår til dette er gjort.
 Vi jobber spec-anchored: oppdater forventet oppførsel i specen når vi avtaler
 endringer, implementer, kontroller og evaluer resultatet.
 
+Prosjektroten er det overordnede arbeidsområdet for utvikling. `business/`
+samler faglige instrukser og vurderinger som kan bruke hele prosjektet som
+grunnlag. Du kan arbeide fra en fagmappe eller be om det aktuelle fagfokuset her
+i roten; [oversikten](business/README.md) forklarer begge arbeidsmåtene.
+
 ## Hosting senere
 
-Dette arbeidet publiserer ikke nettstedet. `dist/` kan senere serveres statisk,
-men verten må sende ukjente frontendruter til `index.html` slik at direkte lenker
-som `/easy-work` fungerer. Bevar vanlig servering av statiske filer. Vite dev og
-preview håndterer denne SPA-reserven lokalt.
+Et separat oppsett med Caddy, Gunicorn og PostgreSQL er forberedt i
+`compose.production.yaml`. Det bygger frontend utenfor VPS-en og samler appen
+under HTTPS med private backend-/databaseporter. `scripts/release.sh` håndterer
+manuell oppdatering med backup og migrasjoner; egne verktøy prøver gjenoppretting.
 
-Backend-rutene `/api/`, `/accounts/` og `/_allauth/` må gå til Django før
-SPA-reserven. Compose-filen og Djangos utviklingsserver er kun for lokal testing.
-Produksjon trenger HTTPS-proxy, produksjonsserver, begrenset databasebruker,
-backup, oppdateringsrutiner og personvernavklaringene i ADR 001.
-
-Sett `DJANGO_ENV=production`, eget `DJANGO_SECRET_KEY` og eksplisitte
-`DJANGO_ALLOWED_HOSTS` ved produksjonsoppsett. Secure-cookies og HTTPS-redirect
-er da aktivert. Konfigurasjon for TLS-terminering må tilpasses en betrodd proxy;
-videresendte sikkerhetsheadere stoles ikke blindt på i dette grunnoppsettet.
-Kjør `manage.py clearsessions` regelmessig for å slette utløpte serverøkter.
+Følg [driftsveiledningen](docs/deployment.md). Ingen server er valgt eller publisert.
+Domene, produksjonsnøkler, ekstern backup og kontroll på valgt server gjenstår,
+sammen med misbruksvern og personvernavklaringene før offentlig åpning.

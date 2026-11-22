@@ -8,6 +8,13 @@ Rammen er vedtatt i [ADR 003](adr/003-backend-database-og-drift.md): maks
 Rammen er økt fra 100 NOK etter brukerens avklaring. Omtaler av support,
 stabilitet og fakturering skal inngå i leverandørvurderingen.
 
+Oppfølging 2026-11-08: Brukeren opplyser at aktuelle Hetzner-/OVH-tilbud ikke
+var tilgjengelige og ønsker One.com Cloud Server S med backup på hjemmeserver
+vurdert. Se [egen vurdering](../business/finance/onecom-cloud-server-s.md) for
+prisgrunnlag, vilkår og begrensninger. One.com er nå aktuell kandidat; kjøp,
+sluttpris og backupoppsett er ikke bekreftet. Tabellene og tidligere prioritering
+under gjengir undersøkelsen fra 2026-11-06, ikke et krav om å velge disse leverandørene.
+
 ## Aktuelle spor
 
 | Alternativ | Offentlig oppgitt pris | Vurdering |

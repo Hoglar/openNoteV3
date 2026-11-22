@@ -1,0 +1,69 @@
+name: Production check
+
+# Explicit, bounded test run. No credentials, registry uploads or deployments.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  production:
+    name: Containers and restore
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      OPENNOTE_PROJECT: opennote-smoke
+    steps:
+      - name: Hent kode
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Lag separat testkonfigurasjon
+        run: |
+          umask 077
+          cat > .env.production <<'ENV'
+          SITE_DOMAIN=localhost
+          OPENNOTE_RELEASE=ci-test
+          DJANGO_SECRET_KEY=opennote-smoke-only-not-a-real-secret-at-least-50-characters-000000000
+          POSTGRES_ADMIN_PASSWORD=smoke-admin-only
+          POSTGRES_PASSWORD=smoke-app-only
+          ENV
+      - name: Valider og bygg containerne
+        run: |
+          bash scripts/production.sh config --quiet
+          bash scripts/production.sh build --pull
+          bash scripts/production.sh pull db
+          bash scripts/production.sh run --rm --no-deps web caddy validate --config /etc/caddy/Caddyfile
+      - name: Kjør produksjonskontroll og migrasjoner
+        run: bash scripts/release.sh
+      - name: Kontroller HTTPS og appen gjennom proxyen
+        run: python3 scripts/production-smoke.py
+      - name: Kontroller databaserolle og lag syntetisk innhold
+        run: |
+          bash scripts/production.sh exec -T backend python manage.py shell <<'PY'
+          from django.db import connection
+          from accounts.models import User
+          from notes.models import Note
+          with connection.cursor() as cursor:
+              cursor.execute('SELECT rolsuper, rolcreatedb, rolcreaterole FROM pg_roles WHERE rolname = current_user')
+              assert cursor.fetchone() == (False, False, False)
+          user = User.objects.create_user(display_name='Backup-test')
+          Note.objects.create(owner=user, title='Gjenoppretting', body='Syntetisk kontrollinnhold')
+          PY
+      - name: Ta backup og prøv gjenoppretting
+        run: |
+          backup=$(bash scripts/backup.sh)
+          bash scripts/restore-check.sh "$backup"
+      - name: Prøv oppdatering med eksisterende data
+        run: |
+          bash scripts/release.sh
+          python3 scripts/production-smoke.py
+          bash scripts/production.sh exec -T backend python manage.py shell -c "from notes.models import Note; assert Note.objects.filter(body='Syntetisk kontrollinnhold').count() == 1"
+      - name: Rydd bare den midlertidige teststakken
+        if: ${{ always() }}
+        run: bash scripts/production.sh down --volumes --remove-orphans

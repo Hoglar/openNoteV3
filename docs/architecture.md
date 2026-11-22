@@ -20,8 +20,8 @@ Backend er en modulær monolitt med implementerte moduler for `accounts`,
   og oppdatering. Kun innloggingsstart og callback-ruter eksponeres fra allauth.
   Serverøkt og profil-API er beskrevet i [Spec 003](specs/003-auth.md).
 - Backend håndhever eierskap og validering, og bruker serverlagrede økter.
-- Separate frontend- og backend-bygg eksponeres på samme HTTPS-origin via en
-  proxy i planlagt produksjon, med reserverte ruter for API og innlogging.
+- Separate frontend- og backend-bygg eksponeres på samme HTTPS-origin via
+  Caddy i det forberedte produksjonsoppsettet, med reserverte API-/innloggingsruter.
   Lokalt gjør Vite denne videresendingen til Django på port 8000.
 - Én PostgreSQL-database lagrer innhold, relasjoner og økter. Vi starter uten
   egen grafdatabase, kø eller cachetjeneste.
@@ -34,6 +34,19 @@ Backend er en modulær monolitt med implementerte moduler for `accounts`,
   dokumenteres, inkludert backup utenfor serveren og testet gjenoppretting.
   Se [hostingvurderingen](hosting.md). Kapasitet økes etter målt behov og innenfor
   avtalt budsjett.
+
+`compose.production.yaml` samler Caddy med statisk frontend, Django/Gunicorn og
+PostgreSQL på én VPS. Bare webserveren publiserer porter. En egen approlle eier
+databasen uten administratorrettigheter. Backend stoler på proxyens overskrevne
+HTTPS-header bare ved eksplisitt aktivering i produksjon. To Gunicorn-prosesser
+med to tråder hver er en startkonfigurasjon, ikke et målt kapasitetsløfte.
+
+Bildene bygges utenfor VPS-en med samme versjonstag. Manuell utrulling etter
+grønn CI beholder kontrollen uten registry-/serverkoblinger før leverandørvalg.
+Appen stoppes kort mens backup og migrasjoner kjøres; null nedetid er ikke et krav.
+Kode kan bare tilbakeføres når databasestrukturen fortsatt passer. Dump og separat
+gjenopprettingstest er forberedt; ekstern backup og faktisk serverdrift gjenstår.
+Se [Spec 006](specs/006-production.md) og [driftsveiledningen](deployment.md).
 
 ## Frontend
 
@@ -112,6 +125,9 @@ nettlesertestene bruker isolerte API-svar. Låste avhengigheter installeres fra
 repositoryet. Ingen produksjonsnøkler eller lokale `.env`-filer brukes i CI.
 Jobbene gir hver sin status i GitHub og publiserer ikke appen. Slik kan senere
 utrulling bygges på verifiserte endringer uten å blande drift inn i testene.
+En separat, manuelt startet **Production check** prøver containerkjeden med
+lokale testsertifikater og syntetiske data, inkludert backup/gjenoppretting.
+Den trenger ingen server, OAuth-nøkler eller publiseringstilgang.
 
 ## Videre produktretning
 
@@ -120,3 +136,13 @@ fortsatt ideer i [idénotatet](ideas/easy-work-stjernehimmel.md), ikke implement
 læringsteori. AI kan brukes utenfor portalen; ingen integrert AI er innført.
 Offentlig drift, ratebegrensning, kontosletting og øvrige personvernavklaringer
 følger fortsatt ADR 001 og 003 før lansering.
+
+## Organisering av prosjektarbeidet
+
+Prosjektroten er overordnet arbeidsområde for utvikling og koordinering.
+`business/` samler faglige instrukser og vurderinger, med tilgang til relevant
+prosjektgrunnlag innenfor miljøets tillatelser. Dette er dokumentorganisering,
+ikke nye appmoduler eller egne agentprosesser. Specs, ADR-er og driftsveiledningen
+beholder sine eksisterende roller; fagmappene lenker til dem for å unngå
+motstridende kopier. Se [Spec 007](specs/007-workspaces.md) og
+[fagoversikten](../business/README.md).
